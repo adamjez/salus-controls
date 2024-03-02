@@ -1,0 +1,14 @@
+{
+  "domain": "salus_controls",
+  "name": "Salus Controls",
+  "version": "0.2.0",
+  "documentation": "https://github.com/adamjez/salus-controls-ha",
+  "issue_tracker": "https://github.com/adamjez/salus-controls-ha/issues",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": [
+    "@adamjez"
+  ],
+  "integration_type": "device",
+  "iot_class": "cloud_polling"
+}
