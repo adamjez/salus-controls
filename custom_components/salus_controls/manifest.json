@@ -1,9 +1,9 @@
 {
   "domain": "salus_controls",
   "name": "Salus Controls",
-  "version": "0.2.0",
-  "documentation": "https://github.com/adamjez/salus-controls-ha",
-  "issue_tracker": "https://github.com/adamjez/salus-controls-ha/issues",
+  "version": "0.3.0",
+  "documentation": "https://github.com/adamjez/salus-controls",
+  "issue_tracker": "https://github.com/adamjez/salus-controls/issues",
   "requirements": [],
   "dependencies": [],
   "codeowners": [
