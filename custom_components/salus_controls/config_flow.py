@@ -16,10 +16,6 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-CONF_FLOW_TYPE = "config_flow_device"
-CONF_USER = "user"
-DEFAULT_GATEWAY_NAME = "Salus iT600 Gateway"
-
 GATEWAY_SETTINGS = {
     vol.Required(CONF_USERNAME): str,
     vol.Required(CONF_PASSWORD): str,
@@ -46,7 +42,7 @@ class SalusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             self._abort_if_unique_id_configured()
 
             return self.async_create_entry(
-                    title=user_input[CONF_NAME],
+                    title="Salus Controls",
                     data={
                         CONF_USERNAME: username,
                         CONF_PASSWORD: password,
