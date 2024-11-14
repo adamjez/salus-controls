@@ -32,57 +32,38 @@ from .coordinator import SalusCoordinator
 
 CONF_SIMULATOR = 'simulator'
 
-__version__ = "0.2.0"
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = [
     Platform.CLIMATE,
     Platform.SWITCH
 ]
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
-    {
-        vol.Required(CONF_USERNAME): cv.string,
-        vol.Required(CONF_PASSWORD): cv.string,
-        vol.Required(CONF_ID): cv.string,
-        vol.Optional(
-            CONF_SIMULATOR,
-            default=False): cv.boolean
-    })
+async def async_setup_entry(hass, entry) -> bool:
+    """Set up components from a config entry."""
+    hass.data[DOMAIN] = {}
+    if entry.data[CONF_USERNAME]:
+         client = create_client_from(entry.data)
+         name = entry.data[CONF_ID]
 
+         # assuming API object stored here by __init__.py
+         coordinator = SalusCoordinator(hass, client)
 
-async def async_setup_platform(
-        hass,
-        config,
-        async_add_entities,
-        discovery_info=None):
-    """Set up the E-Thermostat platform."""
+         # Fetch initial data so we have data when entities subscribe
+         #
+         # If the refresh fails, async_config_entry_first_refresh will
+         # raise ConfigEntryNotReady and setup will try again later
+         #
+         # If you do not want to retry setup on failure, use
+         # coordinator.async_refresh() instead
+         #
+         await coordinator.async_config_entry_first_refresh()
+ 
+         await hass.async_add_entities(
+             [ThermostatEntity(name, coordinator, client), HotWaterEntity(name, coordinator, client)],
+             update_before_add=True
+         )
 
-    _LOGGER.info("Discovery info: %s", discovery_info)
-
-    await async_setup_reload_service(hass, DOMAIN, PLATFORMS)
-
-    client = create_client_from(config)
-
-    name = config.get(CONF_NAME)
-
-    # assuming API object stored here by __init__.py
-    coordinator = SalusCoordinator(hass, client)
-
-    # Fetch initial data so we have data when entities subscribe
-    #
-    # If the refresh fails, async_config_entry_first_refresh will
-    # raise ConfigEntryNotReady and setup will try again later
-    #
-    # If you do not want to retry setup on failure, use
-    # coordinator.async_refresh() instead
-    #
-    await coordinator.async_config_entry_first_refresh()
-
-    async_add_entities(
-        [ThermostatEntity(name, coordinator, client), HotWaterEntity(name, coordinator, client)],
-        update_before_add=True
-    )
-
+    return True
 
 def create_client_from(config) -> Client:
     """Creates a client object based on the specified configuration"""
