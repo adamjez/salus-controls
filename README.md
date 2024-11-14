@@ -1,6 +1,6 @@
-# Home-Assistant Custom Components
+# WIP
 
-[![CI](https://github.com/matthewturner/salusfy/actions/workflows/ci.yml/badge.svg)](https://github.com/matthewturner/salusfy/actions/workflows/ci.yml)
+# Home-Assistant Custom Components
 
 Custom Components for Home-Assistant (http://www.home-assistant.io)
 
