@@ -28,6 +28,10 @@ class SalusCoordinator(DataUpdateCoordinator):
         )
         self.client = client
 
+    @property
+    def get_client(self):
+        return self.client
+
     async def _async_setup(self):
         """Set up the coordinator
 

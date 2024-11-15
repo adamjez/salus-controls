@@ -13,6 +13,7 @@ from homeassistant.const import (
 )
 
 from .const import (
+    DOMAIN,
     MAX_TEMP,
     MIN_TEMP
 )
@@ -21,6 +22,12 @@ from .const import (
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.core import callback
 
+async def async_setup_entry(hass, config_entry, async_add_entities):
+    """Set up Salus switches from a config entry."""
+
+    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+
+    async_add_entities(ThermostatEntity("Salus Thermostat", coordinator, coordinator.get_client))
 
 class ThermostatEntity(ClimateEntity):
     """Representation of a Salus Thermostat cappabilities."""
@@ -31,12 +38,11 @@ class ThermostatEntity(ClimateEntity):
         self._coordinator = coordinator
         self._client = client
         self._state = None
-        self._enable_turn_on_off_backwards_compatibility = False
 
     @property
     def supported_features(self) -> ClimateEntityFeature:
         """Return the list of supported features."""
-        return ClimateEntityFeature.TARGET_TEMPERATURE
+        return ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON
 
     @property
     def name(self) -> str:

@@ -7,12 +7,13 @@ from homeassistant.const import (
     Platform,
     CONF_PASSWORD,
     CONF_USERNAME,
-    CONF_ID
+    CONF_DEVICE_ID
 )
+from homeassistant.helpers import device_registry
 
 from .web_client import WebClient
-from .thermostat_entity import ThermostatEntity
-from .hot_water_entity import HotWaterEntity
+from .climate import ThermostatEntity
+from .switch import HotWaterEntity
 from .const import DOMAIN
 from .coordinator import SalusCoordinator
 
@@ -27,7 +28,7 @@ async def async_setup_entry(hass, entry) -> bool:
     hass.data[DOMAIN] = {}
     if entry.data[CONF_USERNAME]:
         client = create_client_from(entry.data)
-        name = entry.data[CONF_ID]
+        name = entry.data[CONF_DEVICE_ID]
 
         # assuming API object stored here by __init__.py
         coordinator = SalusCoordinator(hass, client)
@@ -41,10 +42,18 @@ async def async_setup_entry(hass, entry) -> bool:
         #
         await coordinator.async_config_entry_first_refresh()
 
-        await hass.async_add_entities(
-            [ThermostatEntity(name, coordinator, client), HotWaterEntity(name, coordinator, client)],
-            update_before_add=True
+        hass.data[DOMAIN][entry.entry_id] = coordinator
+
+        registry = await device_registry.async_get(hass)
+        await registry.async_get_or_create(
+            config_entry_id=entry.entry_id,
+            identifiers={(DOMAIN, name)},
+            manufacturer="Salus Controls",
+            name="Salus",
+            model="iT500",
         )
+
+        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
 
@@ -53,7 +62,7 @@ def create_client_from(config) -> WebClient:
 
     username = config[CONF_USERNAME]
     password = config[CONF_PASSWORD]
-    device_id = config[CONF_ID]
+    device_id = config[CONF_DEVICE_ID]
 
     _LOGGER.info("Creating Salus web client %s", config)
 

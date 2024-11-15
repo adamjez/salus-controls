@@ -7,18 +7,16 @@ import voluptuous as vol
 from homeassistant.const import (
     CONF_PASSWORD,
     CONF_USERNAME,
-    CONF_ID
+    CONF_DEVICE_ID
 )
 from homeassistant import config_entries
 
 from .const import DOMAIN
 
-_LOGGER = logging.getLogger(__name__)
-
 GATEWAY_SETTINGS = {
     vol.Required(CONF_USERNAME): str,
     vol.Required(CONF_PASSWORD): str,
-    vol.Required(CONF_ID): str,
+    vol.Required(CONF_DEVICE_ID): str,
 }
 
 class SalusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -34,7 +32,7 @@ class SalusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             username = user_input[CONF_USERNAME]
             password = user_input[CONF_PASSWORD]
-            device_id = user_input[CONF_ID]
+            device_id = user_input[CONF_DEVICE_ID]
 
             # TODO: Try to connect to a Salus Gateway.
             await self.async_set_unique_id(device_id)
@@ -45,10 +43,10 @@ class SalusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     data={
                         CONF_USERNAME: username,
                         CONF_PASSWORD: password,
-                        CONF_ID: device_id,
+                        CONF_DEVICE_ID: device_id,
                     },
                 )
 
         schema = vol.Schema(GATEWAY_SETTINGS)
 
-        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+        return self.async_show_form(step_id="init", data_schema=schema, errors=errors)

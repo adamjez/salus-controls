@@ -3,11 +3,20 @@
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.core import callback
 
+from custom_components.salus_controls.const import DOMAIN
+
+async def async_setup_entry(hass, config_entry, async_add_entities):
+    """Set up Salus switches from a config entry."""
+
+    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+
+    async_add_entities(HotWaterEntity("Hot Water Valve", coordinator, coordinator.get_client))
+
 class HotWaterEntity(SwitchEntity):
-    """Representation of a hot water pump."""
+    """Representation of a hot water."""
 
     def __init__(self, name, coordinator, client):
-        """Initialize the pump switch."""
+        """Initialize the switch."""
         self._name = name
         self._coordinator = coordinator
         self._client = client
