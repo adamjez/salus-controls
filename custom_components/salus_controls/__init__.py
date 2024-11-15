@@ -40,7 +40,7 @@ async def async_setup_entry(hass, entry) -> bool:
         #
         await coordinator.async_config_entry_first_refresh()
 
-        hass.data[DOMAIN][entry.entry_id] = coordinator
+        entry.runtime_data = coordinator
 
         registry = device_registry.async_get(hass)
         registry.async_get_or_create(
@@ -51,7 +51,7 @@ async def async_setup_entry(hass, entry) -> bool:
             model="iT500",
         )
 
-        hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
 

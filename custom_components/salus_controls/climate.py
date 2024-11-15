@@ -13,7 +13,6 @@ from homeassistant.const import (
 )
 
 from .const import (
-    DOMAIN,
     MAX_TEMP,
     MIN_TEMP
 )
@@ -25,7 +24,7 @@ from homeassistant.core import callback
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Salus switches from a config entry."""
 
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator = config_entry.runtime_data
 
     async_add_entities(ThermostatEntity("Salus Thermostat", coordinator, coordinator.get_client))
 
