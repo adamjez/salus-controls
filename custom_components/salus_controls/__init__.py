@@ -12,8 +12,6 @@ from homeassistant.const import (
 from homeassistant.helpers import device_registry
 
 from .web_client import WebClient
-from .climate import ThermostatEntity
-from .switch import HotWaterEntity
 from .const import DOMAIN
 from .coordinator import SalusCoordinator
 
@@ -44,8 +42,8 @@ async def async_setup_entry(hass, entry) -> bool:
 
         hass.data[DOMAIN][entry.entry_id] = coordinator
 
-        registry = await device_registry.async_get(hass)
-        await registry.async_get_or_create(
+        registry = device_registry.async_get(hass)
+        registry.async_get_or_create(
             config_entry_id=entry.entry_id,
             identifiers={(DOMAIN, name)},
             manufacturer="Salus Controls",
@@ -53,7 +51,7 @@ async def async_setup_entry(hass, entry) -> bool:
             model="iT500",
         )
 
-        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+        hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
 
