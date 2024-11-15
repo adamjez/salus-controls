@@ -16,6 +16,8 @@ from homeassistant.const import (
     CONF_DEVICE_ID
 )
 
+from custom_components.salus_controls.state import State
+
 from .const import (
     DOMAIN,
     MAX_TEMP,
@@ -24,6 +26,7 @@ from .const import (
 
 
 from homeassistant.components.climate import ClimateEntity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.core import callback
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -34,19 +37,17 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
     async_add_entities([ThermostatEntity("Salus Thermostat", coordinator, coordinator.get_client, device_id)])
 
-class ThermostatEntity(ClimateEntity):
+class ThermostatEntity(CoordinatorEntity, ClimateEntity):
     """Representation of a Salus Thermostat cappabilities."""
 
     def __init__(self, name, coordinator, client, device_id):
         """Initialize the thermostat."""
+        super().__init__(coordinator)
         self._name = name
         self._device_id = device_id
         self._coordinator = coordinator
         self._client = client
-        self._state = {}
-        self._state.current_temperature = None
-        self._state.target_temperature = None
-        self._state.mode = None
+        self._state = State()
 
     @property
     def supported_features(self) -> ClimateEntityFeature:

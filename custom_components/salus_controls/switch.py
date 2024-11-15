@@ -1,6 +1,7 @@
 """Hot water pump entity for the Salus Controls device."""
 
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.core import callback
 
 from homeassistant.const import (
@@ -19,11 +20,12 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
     async_add_entities([HotWaterEntity("Hot Water Valve", coordinator, coordinator.get_client, device_id)])
 
-class HotWaterEntity(SwitchEntity):
+class HotWaterEntity(CoordinatorEntity, SwitchEntity):
     """Representation of a hot water."""
 
     def __init__(self, name, coordinator, client, device_id):
         """Initialize the switch."""
+        super().__init__(coordinator)
         self._name = name
         self._device_id = device_id
         self._coordinator = coordinator
@@ -38,7 +40,7 @@ class HotWaterEntity(SwitchEntity):
     @property
     def unique_id(self) -> str:
         """Return the unique ID for this switch."""
-        return "_".join([self._device_id, "switch"])
+        return "_".join([self._device_id, "hot_water_valve"])
 
     @property
     def is_on(self):
