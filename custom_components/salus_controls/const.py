@@ -10,4 +10,3 @@ URL_LOGIN = "https://salus-it500.com/public/login.php"
 URL_GET_TOKEN = "https://salus-it500.com/public/control.php"
 URL_GET_DATA = "https://salus-it500.com/public/ajax_device_values.php"
 URL_SET_DATA = "https://salus-it500.com/includes/set.php"
-

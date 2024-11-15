@@ -10,7 +10,6 @@ from homeassistant.const import (
     CONF_ID
 )
 from homeassistant import config_entries
-from homeassistant.const import CONF_HOST, CONF_NAME, CONF_TOKEN
 
 from .const import DOMAIN
 
