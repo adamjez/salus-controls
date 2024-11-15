@@ -3,23 +3,43 @@
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.core import callback
 
+from homeassistant.const import (
+    CONF_DEVICE_ID
+)
+
+from .const import (
+    DOMAIN,
+)
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Salus switches from a config entry."""
 
     coordinator = config_entry.runtime_data
+    device_id = config_entry.data[CONF_DEVICE_ID]
 
-    async_add_entities([HotWaterEntity("Hot Water Valve", coordinator, coordinator.get_client)])
+    async_add_entities([HotWaterEntity("Hot Water Valve", coordinator, coordinator.get_client, device_id)])
 
 class HotWaterEntity(SwitchEntity):
     """Representation of a hot water."""
 
-    def __init__(self, name, coordinator, client):
+    def __init__(self, name, coordinator, client, device_id):
         """Initialize the switch."""
         self._name = name
+        self._device_id = device_id
         self._coordinator = coordinator
         self._client = client
         self._is_on = None
-    
+
+    @property
+    def device_info(self):
+        """Return information to link this entity with the correct device."""
+        return {"identifiers": {(DOMAIN, self._device_id)}}
+   
+    @property
+    def unique_id(self) -> str:
+        """Return the unique ID for this switch."""
+        return "_".join([self._device_id, "switch"])
+
     @property
     def is_on(self):
         """If the switch is currently on or off."""

@@ -12,7 +12,12 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 
+from homeassistant.const import (
+    CONF_DEVICE_ID
+)
+
 from .const import (
+    DOMAIN,
     MAX_TEMP,
     MIN_TEMP
 )
@@ -25,23 +30,33 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Salus switches from a config entry."""
 
     coordinator = config_entry.runtime_data
+    device_id = config_entry.data[CONF_DEVICE_ID]
 
-    async_add_entities([ThermostatEntity("Salus Thermostat", coordinator, coordinator.get_client)])
+    async_add_entities([ThermostatEntity("Salus Thermostat", coordinator, coordinator.get_client, device_id)])
 
 class ThermostatEntity(ClimateEntity):
     """Representation of a Salus Thermostat cappabilities."""
 
-    def __init__(self, name, coordinator, client):
+    def __init__(self, name, coordinator, client, device_id):
         """Initialize the thermostat."""
         self._name = name
+        self._device_id = device_id
         self._coordinator = coordinator
         self._client = client
-        self._state = None
+        self._state = {}
+        self._state.current_temperature = None
+        self._state.target_temperature = None
+        self._state.mode = None
 
     @property
     def supported_features(self) -> ClimateEntityFeature:
         """Return the list of supported features."""
         return ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON
+
+    @property
+    def device_info(self):
+        """Return information to link this entity with the correct device."""
+        return {"identifiers": {(DOMAIN, self._device_id)}}
 
     @property
     def name(self) -> str:
@@ -51,7 +66,7 @@ class ThermostatEntity(ClimateEntity):
     @property
     def unique_id(self) -> str:
         """Return the unique ID for this thermostat."""
-        return "_".join([self._name, "climate"])
+        return "_".join([self._device_id, "climate"])
 
     @property
     def should_poll(self) -> bool:
