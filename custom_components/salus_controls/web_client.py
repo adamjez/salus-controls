@@ -93,7 +93,7 @@ class WebClient:
         _LOGGER.info("Setting the hot water mode to %s...", enabled)
 
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        options = {"hwmode_once": "1"} if enabled else {"hwmode_off": "1"}
+        options = {"hwmode_cont": "1"} if enabled else {"hwmode_off": "1"}
 
         async with aiohttp.ClientSession() as session:
             token = await self.obtain_token(session)
@@ -175,7 +175,7 @@ class WebClient:
             state.action = HVACAction.IDLE
 
         heat_on_off = data['CH1heatOnOff']
-        
+
         state.mode = HVACMode.OFF if heat_on_off == "1" else HVACMode.HEAT
         state.hot_water_enabled = False if data['HWonOffStatus'] == "0" else True
 
