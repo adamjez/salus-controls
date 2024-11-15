@@ -26,7 +26,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
     coordinator = config_entry.runtime_data
 
-    async_add_entities(ThermostatEntity("Salus Thermostat", coordinator, coordinator.get_client))
+    async_add_entities([ThermostatEntity("Salus Thermostat", coordinator, coordinator.get_client)])
 
 class ThermostatEntity(ClimateEntity):
     """Representation of a Salus Thermostat cappabilities."""

@@ -8,7 +8,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
     coordinator = config_entry.runtime_data
 
-    async_add_entities(HotWaterEntity("Hot Water Valve", coordinator, coordinator.get_client))
+    async_add_entities([HotWaterEntity("Hot Water Valve", coordinator, coordinator.get_client)])
 
 class HotWaterEntity(SwitchEntity):
     """Representation of a hot water."""
