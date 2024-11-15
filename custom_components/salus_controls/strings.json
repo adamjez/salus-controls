@@ -2,7 +2,7 @@
   "config": {
     "flow_title": "Salus: {name}",
     "step": {
-      "init": {
+      "user": {
         "title": "Connect to Salus Gateway",
         "description": "You will need device ID...",
         "data": {
