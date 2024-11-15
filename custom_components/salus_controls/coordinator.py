@@ -49,4 +49,4 @@ class SalusCoordinator(DataUpdateCoordinator):
         This is the place to pre-process the data to lookup tables
         so entities can quickly look up their data.
         """
-        return self.client.get_state()
+        return await self.client.get_state()
