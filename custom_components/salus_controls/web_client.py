@@ -184,10 +184,7 @@ class WebClient:
             else:
                 state.mode = HVACMode.HEAT
 
-        if data['HWonOffStatus'] == "0":
-            state.hot_water_enabled = True
-        else:
-            state.hot_water_enabled = False
+        state.hot_water_enabled = False if data['HWonOffStatus'] == "0" else True
 
         return state
 
