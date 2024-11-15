@@ -175,15 +175,8 @@ class WebClient:
             state.action = HVACAction.IDLE
 
         heat_on_off = data['CH1heatOnOff']
-        auto_mode = data['CH1autoMode']
-        if heat_on_off == "0" and auto_mode == "0":
-            state.mode = HVACMode.AUTO
-        else:
-            if heat_on_off == "1":
-                state.mode = HVACMode.OFF
-            else:
-                state.mode = HVACMode.HEAT
-
+        
+        state.mode = HVACMode.OFF if heat_on_off == "1" else HVACMode.HEAT
         state.hot_water_enabled = False if data['HWonOffStatus'] == "0" else True
 
         return state

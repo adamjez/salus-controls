@@ -22,6 +22,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 class HotWaterEntity(CoordinatorEntity, SwitchEntity):
     """Representation of a hot water."""
+    _attr_has_entity_name = True
 
     def __init__(self, name, coordinator, client, device_id):
         """Initialize the switch."""
@@ -31,6 +32,11 @@ class HotWaterEntity(CoordinatorEntity, SwitchEntity):
         self._coordinator = coordinator
         self._client = client
         self._is_on = None
+
+    @property
+    def name(self):
+        """Name of the entity."""
+        return "Hot Water Valve"
 
     @property
     def device_info(self):
