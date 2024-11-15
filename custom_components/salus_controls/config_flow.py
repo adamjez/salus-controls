@@ -26,7 +26,7 @@ class SalusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     MINOR_VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
-    async def async_step_user(self, user_input=None):
+    async def async_step_init(self, user_input=None):
         """Handle a flow initialized by the user to configure a gateway."""
         errors = {}
         if user_input is not None:
