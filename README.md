@@ -1,89 +1,74 @@
-# WIP
+# Salus Controls integration for HomeAssistant
 
-# Home-Assistant Custom Components
+A HomeAssistant custom integration to monitor and control Salus Controls devices using HTTP API.
 
-Custom Components for Home-Assistant (http://www.home-assistant.io)
+Supported devices are:
 
-# Salus Thermostat Climate Component
-My device is RT301i, it is working with it500 thermostat, the idea is simple if you have a Salus Thermostat and you are able to login to salus-it500.com and control it from this page, this custom component should work.
+- Salus iT500
 
-## Component to interface with the salus-it500.com.
-It reads the Current Temperature, Set Temperature, Current HVAC Mode, Current Relay Mode.
+## Installation
 
-Keep in mind this is my first custom component and this is also the first version of this Salusfy so it can have bugs. Sorry for that.
+You can install this component in two ways: via [HACS](https://github.com/hacs/integration) or manually.
 
-**** This is not an official integration.
-
-### Installation
-1. Clone the repo into the `home_assistant` directory
-1. Change directory into the `salusfy` directory
-1. Run install.sh (you may need to fix the line endings)
-1. Configure with config below
-1. Restart Home Assistant
-
-### Usage
-To use this component in your installation, add the following to your configuration.yaml file:
-
-#### Example configuration.yaml entry
-
-```
-climate:
-  - platform: salusfy
-    username: "EMAIL"
-    password: "PASSWORD"
-    id: "DEVICE_ID"
-```
-![image](https://user-images.githubusercontent.com/33951255/140300295-4915a18f-f5d4-4957-b513-59d7736cc52a.png)
-![image](https://user-images.githubusercontent.com/33951255/140303472-fd38b9e4-5c33-408f-afef-25547c39551c.png)
+> This integration is not published in HACS yet but it can be still added using custom repository
 
 
-### Getting the DEVICE_ID
-1. Loggin to https://salus-it500.com with email and password used in the mobile app (in my case RT301i)
+### Option A: Installing via HACS
+
+If you have HACS, just add this repository as [custom repository](https://www.hacs.xyz/docs/faq/custom_repositories/) and install it.
+
+
+### Option B: Manual installation (custom_component)
+
+Prerequisite: SSH into your server.
+[Home Assistant Add-on: SSH server](https://github.com/home-assistant/hassio-addons/tree/master/ssh)
+
+1. Clone the git master branch.
+`git clone https://github.com/adam.jez/salus-controls.git`
+2. If missing, create a `custom_components` directory where your `configuration.yaml` file resides. This is usually in the config directory of homeassistant.
+`mkdir ~/.homeassistant/custom_components`
+3. Copy the `salus_controls` directory within the `custom_components` directory of your homeassistant installation from step 2.
+`cp -R salus_controls/custom_components/salus_controls/ ~/.homeassistant/custom_components`
+4. (Optional) Delete the git repo.
+`rm -Rf salus_controls/`
+
+    After a correct installation, your configuration directory should look like the following.
+
+    ```shell
+        └── ...
+        └── configuration.yaml
+        └── secrets.yaml
+        └── custom_components
+            └── salus_controls
+                └── __init__.py
+                └── config_flow.py
+                └── const.py
+                └── ...
+    ```
+
+5. Reboot HomeAssistant
+
+## Component Configuration
+
+Once the component has been installed, you need to configure it using the web interface in order to make it work.
+
+1. Go to "Settings->Devices & Services".
+2. Click "+ Add Integration".
+3. Search for "Salus Controls"
+4. Select the integration and **Follow the setup workflow**
+
+### Configuration
+
+Add your device using your credentials and device ID.
+
+Follow these instructions to find out your device ID:
+1. Log in to https://salus-it500.com with email and password used in the mobile app
 2. Click on the device
-3. In the next page you will be able to see the device ID in the page URL
-4. Copy the device ID from the URL
-![image](https://user-images.githubusercontent.com/33951255/140301260-151b6af9-dbc4-4e90-a14e-29018fe2e482.png)
+3. You will be redirected to next page. In the URL, there is the device ID as *devId* query parameter In the 
 
+> Example URL: https://salus-it500.com/public/control.php?devId=34508332
 
-### Separate Temperature Client
-Due to how chatty Home Assistant integrations are, the salus-it500.com server may start blocking your public IP address. This will prevent the gateway and mobile client from connecting. To resolve this, you can use the `TemperatureClient` which:
+## Usage
+After successful installation, you should see new device in your Home Assistant: 
 
-* suppresses requests to Salus for reading the current temperature
-* queries another Home Assistant entity for current temperature via the HA API
-
-The effect of this is that the target temperature/mode values may be out of date **if they have been updated outside of HA**, but the main control features (target temperature, set mode etc) will still work.
-
-To enable the `TemperatureClient`, set the following settings in `climate.yaml`:
-
-```
-climate:
-  - platform: salusfy
-    username: "EMAIL"
-    password: "PASSWORD"
-    id: "DEVICE_ID"
-    enable_temperature_client: True
-    host: "your-home-assistant-ip-address"
-    entity_id: "sensor.your-temperature-sensor"
-    access_token: "your-HA-access-token"
-```
-
-### Running Locally
-
-You can exercise the integration locally using the `run.py` which calls the code on your local machine as if it was being run within Home Assistant. This can help debug any issues you may be having without waiting for multiple Home Assistant restarts.
-
-To get going:
-
-1. Copy `config.sample.py` to `config.py`
-1. Replace the config (below) with the appropriate values for your installation
-1. Run `python ./run.py`
-
-Feel free to change the code to exercise different methods and configuration.
-
-#### Example config.py
-
-```
-ENABLE_TEMPERATURE_CLIENT = True
-HOST = "your-home-assistant-ip-address"
-ENTITY_ID = "sensor.your-temperature-sensor"
-ACCESS_TOKEN = "your-HA-access-token"
-```
+![Device in Home Assistant](docs/device.png?raw=true "Device in Home Assistant")
