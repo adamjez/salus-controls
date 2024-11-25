@@ -52,9 +52,9 @@ Prerequisite: SSH into your server.
 
 Once the component has been installed, you need to configure it using the web interface in order to make it work.
 
-1. Go to "Settings->Devices & Services".
-2. Click "+ Add Integration".
-3. Search for "Salus Controls"
+1. Go to *Settings->Devices & Services*
+2. Click *+ Add Integration*
+3. Search for *Salus Controls*
 4. Select the integration and **Follow the setup workflow**
 
 ### Configuration
@@ -63,8 +63,8 @@ Add your device using your credentials and device ID.
 
 Follow these instructions to find out your device ID:
 1. Log in to https://salus-it500.com with email and password used in the mobile app
-2. Click on the device
-3. You will be redirected to next page. In the URL, there is the device ID as *devId* query parameter In the 
+2. Click on the device you want to add
+3. You will be redirected to next page. In the URL, there is the device ID as *devId* query parameter.
 
 > Example URL: https://salus-it500.com/public/control.php?devId=34508332
 
@@ -72,3 +72,9 @@ Follow these instructions to find out your device ID:
 After successful installation, you should see new device in your Home Assistant: 
 
 ![Device in Home Assistant](docs/device.png?raw=true "Device in Home Assistant")
+
+## License
+This project is licensed under the MIT License. You are free to use, modify, and distribute this software in accordance with the terms of the license.
+
+## Contributions
+Contributions are welcome! Feel free to report an issue or submit a pull request.
