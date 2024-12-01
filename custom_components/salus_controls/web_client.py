@@ -57,7 +57,7 @@ class WebClient:
 
             try:
                 await session.post(URL_SET_DATA, data=payload, headers=headers)
-                _LOGGER.info("Salusfy set_temperature: OK")
+                _LOGGER.info("Sucessfully set temperature to %.1f", temperature)
             except BaseException:
                 _LOGGER.error("Error Setting the temperature.")
 
@@ -84,13 +84,14 @@ class WebClient:
                 "auto_setZ1": "1"}
             try:
                 await session.post(URL_SET_DATA, data=payload, headers=headers)
+                _LOGGER.info("Sucessfully set the HVAC mode to %s", hvac_mode)
             except BaseException:
-                _LOGGER.error("Error Setting HVAC mode to %s", hvac_mode)
+                _LOGGER.error("Error setting the HVAC mode to %s", hvac_mode)
 
     async def set_hot_water_mode(self, enabled: bool) -> None:
         """Set HVAC mode, via URL commands."""
 
-        _LOGGER.info("Setting the hot water mode to %s...", enabled)
+        _LOGGER.info("Setting the hot water mode to %s...", str(enabled))
 
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         options = {"hwmode_cont": "1"} if enabled else {"hwmode_off": "1"}
@@ -104,8 +105,9 @@ class WebClient:
                 "devId": self._id}
             try:
                 await session.post(URL_SET_DATA, data=payload, headers=headers)
+                _LOGGER.info("Sucessfully set the hot water mode to %s", str(enabled))
             except BaseException:
-                _LOGGER.error("Error Setting hot water mode to %s", enabled)
+                _LOGGER.error("Error setting the hot water mode to %s", str(enabled))
 
     async def obtain_token(self, session: str) -> str:
         """Gets the existing session token of the thermostat or retrieves a new one if expired."""
@@ -126,7 +128,7 @@ class WebClient:
     async def get_token(self, session: str) -> None:
         """Get the Session Token of the Thermostat."""
 
-        _LOGGER.info("Getting token from Salus...")
+        _LOGGER.info("Getting token from Salus Gateway...")
 
         payload = {
             "IDemail": self._username,
@@ -202,7 +204,7 @@ class WebClient:
                 raise UpdateFailed(f"Error communicating with API: {err}")
 
             body = await r.text()
-            _LOGGER.info("Salusfy get_data output %s", body)
+            _LOGGER.info("Sucessfully retrieved raw state: %s", body)
             data = json.loads(body)
 
             return data
