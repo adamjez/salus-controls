@@ -138,7 +138,7 @@ class WebClient:
     async def get_state(self) -> dict:
         """Retrieves the raw state from the Salus gateway"""
 
-        _LOGGER.info("Retrieving raw state from Salus Gateway...")
+        _LOGGER.info("Retrieving the device state...")
 
         async with aiohttp.ClientSession() as session:
             token = await self.obtain_token(session)
@@ -148,7 +148,7 @@ class WebClient:
             try:
                 r = await session.get(url=URL_GET_DATA, params=params)
                 if not r:
-                    _LOGGER.error("Could not get data from Salus.")
+                    _LOGGER.error("Could not get the data")
                     return None
             except BaseException as err:
                 _LOGGER.error(
@@ -157,7 +157,7 @@ class WebClient:
                     f"Error during communication with the API: {err}")
 
             body = await r.text()
-            _LOGGER.info("Sucessfully retrieved raw state: %s", body)
+            _LOGGER.info("Sucessfully retrieved the devicestate: %s", body)
             data = json.loads(body)
 
             return WebClient.convert_to_state(data)
