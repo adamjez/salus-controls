@@ -44,29 +44,21 @@ class WebClient:
 
         _LOGGER.info("Setting the temperature to %.1f...", temperature)
 
-        async with aiohttp.ClientSession() as session:
-            token = await self.obtain_token(session)
+        options = {"tempUnit": "0", "current_tempZ1_set": "1",
+                   "current_tempZ1": temperature}
+        data = await self.set_data(options)
+        returnCode = data['retCode']
 
-            payload = {
-                "token": token,
-                "devId": self._id,
-                "tempUnit": "0",
-                "current_tempZ1_set": "1",
-                "current_tempZ1": temperature}
-            headers = {"Content-Type": "application/x-www-form-urlencoded"}
-
-            try:
-                await session.post(URL_SET_DATA, data=payload, headers=headers)
-                _LOGGER.info("Sucessfully set temperature to %.1f", temperature)
-            except BaseException:
-                _LOGGER.error("Error Setting the temperature.")
+        if returnCode == "1":
+            _LOGGER.info("Sucessfully set temperature to %.1f", temperature)
+        else:
+            _LOGGER.error("Error setting the temperature to %.1f", temperature)
+            raise UpdateFailed("Could not set the temperature")
 
     async def set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set HVAC mode, via URL commands."""
 
         _LOGGER.info("Setting the HVAC mode to %s...", hvac_mode)
-
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         auto = "1"
         if hvac_mode == HVACMode.OFF:
@@ -74,42 +66,33 @@ class WebClient:
         elif hvac_mode == HVACMode.HEAT:
             auto = "0"
 
-        async with aiohttp.ClientSession() as session:
-            token = await self.obtain_token(session)
+        options = {"auto": auto, "auto_setZ1": "1"}
+        data = await self.set_data(options)
 
-            payload = {
-                "token": token,
-                "devId": self._id,
-                "auto": auto,
-                "auto_setZ1": "1"}
-            try:
-                await session.post(URL_SET_DATA, data=payload, headers=headers)
-                _LOGGER.info("Sucessfully set the HVAC mode to %s", hvac_mode)
-            except BaseException:
-                _LOGGER.error("Error setting the HVAC mode to %s", hvac_mode)
+        if data == "1":
+            _LOGGER.info("Sucessfully set the HVAC mode to %s", hvac_mode)
+        else:
+            _LOGGER.error("Error setting the HVAC mode to %s", hvac_mode)
+            raise UpdateFailed("Could not set the HVAC mode")
 
     async def set_hot_water_mode(self, enabled: bool) -> None:
         """Set HVAC mode, via URL commands."""
 
         _LOGGER.info("Setting the hot water mode to %s...", str(enabled))
 
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
         options = {"hwmode_cont": "1"} if enabled else {"hwmode_off": "1"}
 
-        async with aiohttp.ClientSession() as session:
-            token = await self.obtain_token(session)
+        data = await self.set_data(options)
 
-            payload = {
-                **options,
-                "token": token,
-                "devId": self._id}
-            try:
-                await session.post(URL_SET_DATA, data=payload, headers=headers)
-                _LOGGER.info("Sucessfully set the hot water mode to %s", str(enabled))
-            except BaseException:
-                _LOGGER.error("Error setting the hot water mode to %s", str(enabled))
+        if data == "2" or data == "3":
+            _LOGGER.info(
+                "Sucessfully set the hot water mode to %s", str(enabled))
+        else:
+            _LOGGER.error(
+                "Error setting the hot water mode to %s", str(enabled))
+            raise UpdateFailed("Could not set the hot water mode")
 
-    async def obtain_token(self, session: str) -> str:
+    async def obtain_token(self, session: aiohttp.ClientSession) -> str:
         """Gets the existing session token of the thermostat or retrieves a new one if expired."""
 
         if self._token is None:
@@ -118,14 +101,14 @@ class WebClient:
             return self._token
 
         if self._token_retrieved_at > time.time() - MAX_TOKEN_AGE_SECONDS:
-            _LOGGER.info("Using cached token...")
+            _LOGGER.debug("Using cached token...")
             return self._token
 
         _LOGGER.info("Token has expired, getting new one...")
         await self.get_token(session)
         return self._token
 
-    async def get_token(self, session: str) -> None:
+    async def get_token(self, session: aiohttp.ClientSession) -> None:
         """Get the Session Token of the Thermostat."""
 
         _LOGGER.info("Getting token from Salus Gateway...")
@@ -144,23 +127,70 @@ class WebClient:
             body = await token_response.text()
             result = re.search(
                 '<input id="token" type="hidden" value="(.*)" />', body)
-            _LOGGER.info("Salusfy get_token OK")
+            _LOGGER.info("Sucessfully retrieved token")
             self._token = result.group(1)
             self._token_retrieved_at = time.time()
-        except Exception as e:
+        except Exception as err:
             self._token = None
             self._token_retrieved_at = None
-            _LOGGER.error("Error getting the session token.")
-            _LOGGER.error(e)
+            _LOGGER.error(f"Error getting the session token: {err}")
 
-    async def get_state(self) -> State:
-        """Retrieve the current state from the Salus gateway"""
+    async def get_state(self) -> dict:
+        """Retrieves the raw state from the Salus gateway"""
 
-        _LOGGER.info("Retrieving current state from Salus Gateway...")
+        _LOGGER.info("Retrieving raw state from Salus Gateway...")
 
-        data = await self.get_state_data()
+        async with aiohttp.ClientSession() as session:
+            token = await self.obtain_token(session)
 
-        return WebClient.convert_to_state(data)
+            params = {"devId": self._id, "token": token,
+                      "&_": str(int(round(time.time() * 1000)))}
+            try:
+                r = await session.get(url=URL_GET_DATA, params=params)
+                if not r:
+                    _LOGGER.error("Could not get data from Salus.")
+                    return None
+            except BaseException as err:
+                _LOGGER.error(
+                    "Error Getting the data from Salus. Check the connection to salus-it500.com.")
+                raise UpdateFailed(
+                    f"Error during communication with the API: {err}")
+
+            body = await r.text()
+            _LOGGER.info("Sucessfully retrieved raw state: %s", body)
+            data = json.loads(body)
+
+            return WebClient.convert_to_state(data)
+
+    async def set_data(self, options: dict) -> dict:
+        """Send POST request with token"""
+
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+
+        async with aiohttp.ClientSession() as session:
+            token = await self.obtain_token(session)
+
+            payload = {
+                **options,
+                "token": token,
+                "devId": self._id}
+
+            try:
+                response = await session.post(URL_SET_DATA, data=payload, headers=headers)
+                if not response:
+                    _LOGGER.error("Could not get data from Salus.")
+                    return None
+            except BaseException as err:
+                _LOGGER.error(
+                    "Error during communication with Salus.")
+                raise UpdateFailed(
+                    f"Error during communication with the API: {err}")
+
+            body = await response.text()
+            _LOGGER.debug(
+                "Sucessfully retrieved response from action: %s", body)
+            data = json.loads(body)
+            return data
 
     @classmethod
     def convert_to_state(cls, data: dict) -> State:
@@ -182,29 +212,3 @@ class WebClient:
         state.hot_water_enabled = False if data['HWonOffStatus'] == "0" else True
 
         return state
-
-    async def get_state_data(self) -> dict:
-        """Retrieves the raw state from the Salus gateway"""
-
-        _LOGGER.info("Retrieving raw state from Salus Gateway...")
-
-        async with aiohttp.ClientSession() as session:
-            token = await self.obtain_token(session)
-
-            params = {"devId": self._id, "token": token,
-                      "&_": str(int(round(time.time() * 1000)))}
-            try:
-                r = await session.get(url=URL_GET_DATA, params=params)
-                if not r:
-                    _LOGGER.error("Could not get data from Salus.")
-                    return None
-            except BaseException as err:
-                _LOGGER.error(
-                    "Error Getting the data from Salus. Check the connection to salus-it500.com.")
-                raise UpdateFailed(f"Error communicating with API: {err}")
-
-            body = await r.text()
-            _LOGGER.info("Sucessfully retrieved raw state: %s", body)
-            data = json.loads(body)
-
-            return data
