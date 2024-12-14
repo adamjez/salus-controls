@@ -2,7 +2,7 @@
 
 A HomeAssistant custom integration to monitor and control Salus Controls devices using HTTP API.
 
-Supported devices are:
+Supported devices:
 
 - Salus iT500
 

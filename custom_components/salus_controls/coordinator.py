@@ -7,12 +7,14 @@ from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
 
+from custom_components.salus_controls.web_client import WebClient
+
 _LOGGER = logging.getLogger(__name__)
 
 class SalusCoordinator(DataUpdateCoordinator):
     """My custom coordinator."""
 
-    def __init__(self, hass, client):
+    def __init__(self, hass, client: WebClient):
         """Initialize my coordinator."""
         super().__init__(
             hass,
