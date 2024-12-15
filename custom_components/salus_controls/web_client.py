@@ -47,13 +47,13 @@ class WebClient:
         options = {"tempUnit": "0", "current_tempZ1_set": "1",
                    "current_tempZ1": temperature}
         data = await self.set_data(options)
-        returnCode = data['retCode']
 
-        if returnCode == "1":
+        if 'retCode' in data:
             _LOGGER.info("Sucessfully set temperature to %.1f", temperature)
+        elif 'errorMsg' in data:
+            raise UpdateFailed(f"Server returned: {data["errorMsg"]}")
         else:
-            _LOGGER.error("Error setting the temperature to %.1f", temperature)
-            raise UpdateFailed("Could not set the temperature")
+            raise UpdateFailed("Server returned unknown error")
 
     async def set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set HVAC mode, via URL commands."""
@@ -72,7 +72,6 @@ class WebClient:
         if data == "1":
             _LOGGER.info("Sucessfully set the HVAC mode to %s", hvac_mode)
         else:
-            _LOGGER.error("Error setting the HVAC mode to %s", hvac_mode)
             raise UpdateFailed("Could not set the HVAC mode")
 
     async def set_hot_water_mode(self, enabled: bool) -> None:
@@ -88,8 +87,6 @@ class WebClient:
             _LOGGER.info(
                 "Sucessfully set the hot water mode to %s", str(enabled))
         else:
-            _LOGGER.error(
-                "Error setting the hot water mode to %s", str(enabled))
             raise UpdateFailed("Could not set the hot water mode")
 
     async def obtain_token(self, session: aiohttp.ClientSession) -> str:
@@ -133,7 +130,7 @@ class WebClient:
         except Exception as err:
             self._token = None
             self._token_retrieved_at = None
-            _LOGGER.error(f"Error getting the session token: {err}")
+            _LOGGER.error("Error getting the session token: %s", str(err))
 
     async def get_state(self) -> dict:
         """Retrieves the raw state from the Salus gateway"""
@@ -200,15 +197,15 @@ class WebClient:
         state.current_temperature = float(data["CH1currentRoomTemp"])
         state.frost = float(data["frost"])
 
-        status = data['CH1heatOnOffStatus']
+        status = data["CH1heatOnOffStatus"]
         if status == "1":
             state.action = HVACAction.HEATING
         else:
             state.action = HVACAction.IDLE
 
-        heat_on_off = data['CH1heatOnOff']
+        heat_on_off = data["CH1heatOnOff"]
 
         state.mode = HVACMode.OFF if heat_on_off == "1" else HVACMode.HEAT
-        state.hot_water_enabled = False if data['HWonOffStatus'] == "0" else True
+        state.hot_water_enabled = False if data["HWonOffStatus"] == "0" else True
 
         return state
