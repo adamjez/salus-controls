@@ -18,7 +18,8 @@ from .coordinator import SalusCoordinator
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = [
     Platform.CLIMATE,
-    Platform.SWITCH
+    Platform.SWITCH,
+    Platform.NUMBER
 ]
 
 async def async_setup_entry(hass, entry) -> bool:

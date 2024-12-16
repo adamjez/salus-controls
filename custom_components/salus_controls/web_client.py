@@ -69,7 +69,7 @@ class WebClient:
         options = {"auto": auto, "auto_setZ1": "1"}
         data = await self.set_data(options)
 
-        if data == "1":
+        if data == auto:
             _LOGGER.info("Sucessfully set the HVAC mode to %s", hvac_mode)
         else:
             raise UpdateFailed("Could not set the HVAC mode")
@@ -88,6 +88,23 @@ class WebClient:
                 "Sucessfully set the hot water mode to %s", str(enabled))
         else:
             raise UpdateFailed("Could not set the hot water mode")
+
+    async def set_freeze_protection_temperature(self, temperature: float) -> None:
+        """Set freeze protection temperature."""
+
+        _LOGGER.info(
+            "Setting the freeze protection temperature to %.1f...", temperature)
+
+        options = {"tempUnit": "0", "frost_temp_set": "1",
+                   "frost_temp": temperature}
+        
+        data = await self.set_data(options)
+
+        if temperature == float(data):
+            _LOGGER.info(
+                "Sucessfully set the freeze protection temperature to %.1f", temperature)
+        else:
+            raise UpdateFailed("Could not set the freeze protection temperature")
 
     async def obtain_token(self, session: aiohttp.ClientSession) -> str:
         """Gets the existing session token of the thermostat or retrieves a new one if expired."""
@@ -196,16 +213,8 @@ class WebClient:
         state.target_temperature = float(data["CH1currentSetPoint"])
         state.current_temperature = float(data["CH1currentRoomTemp"])
         state.frost = float(data["frost"])
-
-        status = data["CH1heatOnOffStatus"]
-        if status == "1":
-            state.action = HVACAction.HEATING
-        else:
-            state.action = HVACAction.IDLE
-
-        heat_on_off = data["CH1heatOnOff"]
-
-        state.mode = HVACMode.OFF if heat_on_off == "1" else HVACMode.HEAT
+        state.action = HVACAction.HEATING if data["CH1heatOnOffStatus"] == "1" else HVACAction.IDLE
+        state.mode = HVACMode.OFF if data["CH1heatOnOff"] == "1" else HVACMode.HEAT
         state.hot_water_enabled = False if data["HWonOffStatus"] == "0" else True
 
         return state
