@@ -23,6 +23,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class HotWaterEntity(CoordinatorEntity, SwitchEntity):
     """Representation of a hot water."""
     _attr_has_entity_name = True
+    _attr_icon = "mdi:water-thermometer"
 
     def __init__(self, name, coordinator, client, device_id):
         """Initialize the switch."""
