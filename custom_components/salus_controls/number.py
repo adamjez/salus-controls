@@ -29,7 +29,7 @@ class FreezeProtectionEntity(CoordinatorEntity, NumberEntity):
     """Number entity for freeze protection temperature."""
     _attr_has_entity_name = True
     _attr_device_class = NumberDeviceClass.TEMPERATURE
-    _attr_icon = "mdi:mdi:snowflake-thermometer"
+    _attr_icon = "mdi:snowflake-thermometer"
     _attr_mode = NumberMode.AUTO
     _attr_native_min_value = 1
     _attr_native_max_value = 9
