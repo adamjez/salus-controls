@@ -69,7 +69,7 @@ class WebClient:
         options = {"auto": auto, "auto_setZ1": "1"}
         data = await self.set_data(options)
 
-        if data == auto:
+        if data == "1":
             _LOGGER.info("Sucessfully set the HVAC mode to %s", hvac_mode)
         else:
             raise UpdateFailed("Could not set the HVAC mode")
