@@ -260,8 +260,18 @@ class ApiClient:
             body = await response.text()
             _LOGGER.debug(
                 "Sucessfully retrieved response from action: %s", body)
-            returnCode = int(ET.fromstring(body).find("./retCode").text)
-            return returnCode
+            xml = ET.fromstring(body)
+            error_message = xml.find("./errorMsg")
+            return_code = xml.find("./retCode")
+
+            if error_message is not None:
+                raise UpdateFailed(
+                    f"Error during communication with the API: {error_message.text}")
+            elif return_code is None:
+                raise UpdateFailed(
+                    f"Response does not contain return code")
+            else:
+                return int(return_code.text)
 
     @classmethod
     def convert_to_state(cls, response: DeviceAttributesResponse) -> State:
@@ -280,7 +290,7 @@ class ApiClient:
             HOT_WATER_STATUS_ATTR) == "0" else True
         state.temperature_span = int(
             response.get_value(TEMPERATURE_SPAN_ATTR))
-        state.temperature_offset = TEMPERATURE_OFFSET_VALUES[int(
-            response.get_value(TEMPERATURE_OFFSET_ATTR))]
+        state.temperature_offset = TEMPERATURE_OFFSET_VALUES[
+            int(response.get_value(TEMPERATURE_OFFSET_ATTR))]
 
         return state

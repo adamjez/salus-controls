@@ -111,7 +111,7 @@ class TemperatureOffsetEntity(CoordinatorEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Set new temperature offset value."""
-        await self._client.set_temperature_span(value)
+        await self._client.set_temperature_offset(value)
         await self._coordinator.async_request_refresh()
 
     @callback
