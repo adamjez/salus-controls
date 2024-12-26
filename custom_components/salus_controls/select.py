@@ -39,7 +39,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class TemperatureSpanEntity(CoordinatorEntity, SelectEntity):
     """Select entity for temperature span."""
     _attr_has_entity_name = True
-    _attr_icon = "mdi:thermometer-plus"
     _attr_entity_category = EntityCategory.CONFIG
     _attr_options = SPAN_VALUES
 

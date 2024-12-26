@@ -5,6 +5,7 @@ from homeassistant.components.number import (
     NumberEntity,
     NumberMode
 )
+from homeassistant.const import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.core import callback
 
@@ -39,6 +40,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class FreezeProtectionEntity(CoordinatorEntity, NumberEntity):
     """Number entity for freeze protection temperature."""
     _attr_has_entity_name = True
+    _attr_entity_category = EntityCategory.CONFIG
     _attr_device_class = NumberDeviceClass.TEMPERATURE
     _attr_icon = "mdi:snowflake-thermometer"
     _attr_mode = NumberMode.AUTO
@@ -82,7 +84,9 @@ class FreezeProtectionEntity(CoordinatorEntity, NumberEntity):
 class TemperatureOffsetEntity(CoordinatorEntity, NumberEntity):
     """Number entity for temperature offset."""
     _attr_has_entity_name = True
+    _attr_entity_category = EntityCategory.CONFIG
     _attr_device_class = NumberDeviceClass.TEMPERATURE
+    _attr_icon = "mdi:thermometer-plus"
     _attr_mode = NumberMode.AUTO
     _attr_native_min_value = TEMPERATURE_OFFSET_MIN
     _attr_native_max_value = TEMPERATURE_OFFSET_MAX
