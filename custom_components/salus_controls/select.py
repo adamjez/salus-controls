@@ -68,15 +68,19 @@ class TemperatureSpanEntity(CoordinatorEntity, SelectEntity):
         await self._client.set_temperature_span(value)
         await self._coordinator.async_request_refresh()
 
+    @property
+    def current_option(self) -> str | None:
+        """Get the current status of the select entity from device_status."""
+        if not isinstance(self.selected_value, int):
+            return None
+        else:
+            return SPAN_VALUES[self.map_value(self.selected_value)]
+
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        value = self._coordinator.data.temperature_span
-        if not isinstance(value, int):
-            self._attr_current_option = None
-        else:
-            self._attr_current_option = SPAN_VALUES[self.map_value(value)]
-            self.async_write_ha_state()
+        self.selected_value = self._coordinator.data.temperature_span
+        self.async_write_ha_state()
 
     def map_value(self, value: int) -> int:
         """API uses different value than index in the select list"""
