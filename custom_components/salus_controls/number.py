@@ -42,8 +42,8 @@ class FreezeProtectionEntity(CoordinatorEntity, NumberEntity):
     _attr_device_class = NumberDeviceClass.TEMPERATURE
     _attr_icon = "mdi:snowflake-thermometer"
     _attr_mode = NumberMode.AUTO
-    _attr_native_min_value = FREEZE_PROTECTION_MAX_TEMP
-    _attr_native_max_value = FREEZE_PROTECTION_MIN_TEMP
+    _attr_native_min_value = FREEZE_PROTECTION_MIN_TEMP
+    _attr_native_max_value = FREEZE_PROTECTION_MAX_TEMP
     _attr_native_step = 0.5
     _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
 
