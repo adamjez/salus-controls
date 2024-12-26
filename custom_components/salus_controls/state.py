@@ -12,3 +12,5 @@ class State:
     action = None
     mode = None
     hot_water_enabled = None
+    temperature_span = None
+    temperature_offset = None

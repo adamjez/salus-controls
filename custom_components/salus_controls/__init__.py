@@ -12,6 +12,7 @@ from homeassistant.const import (
 from homeassistant.helpers import device_registry
 
 from .web_client import WebClient
+from .api_client import ApiClient
 from .const import DOMAIN
 from .coordinator import SalusCoordinator
 
@@ -19,7 +20,8 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS = [
     Platform.CLIMATE,
     Platform.SWITCH,
-    Platform.NUMBER
+    Platform.NUMBER,
+    Platform.SELECT
 ]
 
 async def async_setup_entry(hass, entry) -> bool:
@@ -62,7 +64,8 @@ def create_client_from(config) -> WebClient:
     username = config[CONF_USERNAME]
     password = config[CONF_PASSWORD]
     device_id = config[CONF_DEVICE_ID]
+    use_api_client = True
 
-    _LOGGER.info("Creating Salus web client %s", config)
+    _LOGGER.info("Creating Salus client %s", config)
 
-    return WebClient(username, password, device_id)
+    return ApiClient(username, password, device_id) if use_api_client else WebClient(username, password, device_id)

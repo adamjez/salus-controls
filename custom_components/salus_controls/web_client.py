@@ -17,13 +17,13 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from .state import State
-from .const import (
-    MAX_TOKEN_AGE_SECONDS,
-    URL_GET_DATA,
-    URL_GET_TOKEN,
-    URL_LOGIN,
-    URL_SET_DATA
-)
+
+MAX_TOKEN_AGE_SECONDS = 60 * 10
+
+URL_LOGIN = "https://salus-it500.com/public/login.php"
+URL_GET_TOKEN = "https://salus-it500.com/public/control.php"
+URL_GET_DATA = "https://salus-it500.com/public/ajax_device_values.php"
+URL_SET_DATA = "https://salus-it500.com/includes/set.php"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -97,15 +97,24 @@ class WebClient:
 
         options = {"tempUnit": "0", "frost_temp_set": "1",
                    "frost_temp": temperature}
-        
+
         data = await self.set_data(options)
 
         if temperature == float(data):
             _LOGGER.info(
                 "Sucessfully set the freeze protection temperature to %.1f", temperature)
         else:
-            raise UpdateFailed("Could not set the freeze protection temperature")
+            raise UpdateFailed(
+                "Could not set the freeze protection temperature")
 
+    def set_temperature_offset(self, temperature: float) -> None:
+        raise NotImplementedError(
+            "Web client does not support setting temperature offset")
+    
+    def set_temperature_span(self, value: int) -> None:
+        raise NotImplementedError(
+            "Web client does not support setting temperature offset")
+    
     async def obtain_token(self, session: aiohttp.ClientSession) -> str:
         """Gets the existing session token of the thermostat or retrieves a new one if expired."""
 

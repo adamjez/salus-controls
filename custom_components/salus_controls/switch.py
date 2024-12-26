@@ -12,13 +12,16 @@ from .const import (
     DOMAIN,
 )
 
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Salus switches from a config entry."""
 
     coordinator = config_entry.runtime_data
     device_id = config_entry.data[CONF_DEVICE_ID]
 
-    async_add_entities([HotWaterEntity("Hot Water Valve", coordinator, coordinator.get_client, device_id)])
+    async_add_entities([
+        HotWaterEntity("Hot Water Valve", coordinator, coordinator.get_client, device_id)])
+
 
 class HotWaterEntity(CoordinatorEntity, SwitchEntity):
     """Representation of a hot water."""
@@ -43,7 +46,7 @@ class HotWaterEntity(CoordinatorEntity, SwitchEntity):
     def device_info(self):
         """Return information to link this entity with the correct device."""
         return {"identifiers": {(DOMAIN, self._device_id)}}
-   
+
     @property
     def unique_id(self) -> str:
         """Return the unique ID for this switch."""
