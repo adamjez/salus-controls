@@ -17,8 +17,8 @@ from .const import (
     DOMAIN,
     FREEZE_PROTECTION_MIN_TEMP,
     FREEZE_PROTECTION_MAX_TEMP,
-    TEMPERATURE_TOLERANCE_MAX,
-    TEMPERATURE_TOLERANCE_MIN
+    TEMPERATURE_OFFSET_MAX,
+    TEMPERATURE_OFFSET_MIN
 )
 
 
@@ -84,8 +84,8 @@ class TemperatureOffsetEntity(CoordinatorEntity, NumberEntity):
     _attr_has_entity_name = True
     _attr_device_class = NumberDeviceClass.TEMPERATURE
     _attr_mode = NumberMode.AUTO
-    _attr_native_min_value = TEMPERATURE_TOLERANCE_MIN
-    _attr_native_max_value = TEMPERATURE_TOLERANCE_MAX
+    _attr_native_min_value = TEMPERATURE_OFFSET_MIN
+    _attr_native_max_value = TEMPERATURE_OFFSET_MAX
     _attr_native_step = 0.5
     _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
 
