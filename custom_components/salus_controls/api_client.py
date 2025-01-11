@@ -19,7 +19,7 @@ from homeassistant.helpers.update_coordinator import (
 
 from .state import State
 
-MAX_TOKEN_AGE_SECONDS = 60 * 30
+MAX_TOKEN_AGE_SECONDS = 60 * 60
 
 URL_LOGIN = "https://sal-emea-p01-api.arrayent.com/acc/applications/SalusService/sessions"
 URL_GET_DATA = "https://sal-emea-p01-api.arrayent.com/zdk/services/zamapi/getDeviceAttributesWithValues"

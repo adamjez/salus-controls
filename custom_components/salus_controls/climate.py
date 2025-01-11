@@ -29,6 +29,8 @@ from homeassistant.components.climate import ClimateEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.core import callback
 
+PARALLEL_UPDATES = 1
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Salus switches from a config entry."""
 
@@ -147,10 +149,6 @@ class ThermostatEntity(CoordinatorEntity, ClimateEntity):
 
     async def async_turn_on(self) -> None:
         await self.async_set_hvac_mode(HVACMode.HEAT)
-
-#    async def async_update(self) -> None:
-#        """Retrieve latest state data."""
-#        self._state = await self._client.get_state()
 
     @callback
     def _handle_coordinator_update(self) -> None:
